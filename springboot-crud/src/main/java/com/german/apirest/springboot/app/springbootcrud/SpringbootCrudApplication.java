@@ -1,4 +1,4 @@
-package com.andres.curso.springboot.app.springbootcrud;
+package com.german.apirest.springboot.app.springbootcrud;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

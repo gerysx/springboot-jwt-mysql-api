@@ -1,11 +1,11 @@
-package com.andres.curso.springboot.app.springbootcrud;
+package com.german.apirest.springboot.app.springbootcrud;
 
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
-import com.andres.curso.springboot.app.springbootcrud.entities.Product;
+import com.german.apirest.springboot.app.springbootcrud.entities.Product;
 
 @Component
 public class ProductValidation implements Validator {

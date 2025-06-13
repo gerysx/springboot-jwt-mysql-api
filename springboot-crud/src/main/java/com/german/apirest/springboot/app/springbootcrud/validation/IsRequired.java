@@ -1,4 +1,4 @@
-package com.andres.curso.springboot.app.springbootcrud.validation;
+package com.german.apirest.springboot.app.springbootcrud.validation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,4 +1,4 @@
-package com.andres.curso.springboot.app.springbootcrud.entities;
+package com.german.apirest.springboot.app.springbootcrud.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

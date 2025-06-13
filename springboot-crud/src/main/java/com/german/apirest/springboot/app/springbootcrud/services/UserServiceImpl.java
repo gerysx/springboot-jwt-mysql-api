@@ -1,4 +1,4 @@
-package com.andres.curso.springboot.app.springbootcrud.services;
+package com.german.apirest.springboot.app.springbootcrud.services;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,10 +9,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.andres.curso.springboot.app.springbootcrud.entities.Role;
-import com.andres.curso.springboot.app.springbootcrud.entities.User;
-import com.andres.curso.springboot.app.springbootcrud.repositories.RoleRepository;
-import com.andres.curso.springboot.app.springbootcrud.repositories.UserRepository;
+import com.german.apirest.springboot.app.springbootcrud.entities.Role;
+import com.german.apirest.springboot.app.springbootcrud.entities.User;
+import com.german.apirest.springboot.app.springbootcrud.repositories.RoleRepository;
+import com.german.apirest.springboot.app.springbootcrud.repositories.UserRepository;
 
 @Service
 public class UserServiceImpl implements UserService {

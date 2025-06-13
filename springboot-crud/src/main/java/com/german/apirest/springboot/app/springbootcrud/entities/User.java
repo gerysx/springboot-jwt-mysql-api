@@ -1,4 +1,4 @@
-package com.andres.curso.springboot.app.springbootcrud.entities;
+package com.german.apirest.springboot.app.springbootcrud.entities;
 
 import java.util.List;
 
@@ -41,6 +41,8 @@ public class User {
     )
     private List<Role> roles;
 
+    private boolean enabled;
+
     @Transient
     private boolean admin;
 
@@ -82,6 +84,14 @@ public class User {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     

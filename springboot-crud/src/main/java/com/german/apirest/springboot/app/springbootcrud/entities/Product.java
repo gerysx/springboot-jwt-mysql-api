@@ -1,7 +1,6 @@
-package com.andres.curso.springboot.app.springbootcrud.entities;
+package com.german.apirest.springboot.app.springbootcrud.entities;
 
-//import com.andres.curso.springboot.app.springbootcrud.validation.IsExistsDb;
-import com.andres.curso.springboot.app.springbootcrud.validation.IsRequired;
+import com.german.apirest.springboot.app.springbootcrud.validation.IsRequired;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

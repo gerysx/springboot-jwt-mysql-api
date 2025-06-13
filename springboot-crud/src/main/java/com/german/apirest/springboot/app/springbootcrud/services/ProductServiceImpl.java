@@ -1,4 +1,4 @@
-package com.andres.curso.springboot.app.springbootcrud.services;
+package com.german.apirest.springboot.app.springbootcrud.services;
 
 import java.util.List;
 import java.util.Optional;
@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.andres.curso.springboot.app.springbootcrud.entities.Product;
-import com.andres.curso.springboot.app.springbootcrud.repositories.ProductRepository;
+import com.german.apirest.springboot.app.springbootcrud.entities.Product;
+import com.german.apirest.springboot.app.springbootcrud.repositories.ProductRepository;
 
 @Service
 public class ProductServiceImpl implements ProductService {

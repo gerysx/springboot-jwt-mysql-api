@@ -1,4 +1,4 @@
-package com.andres.curso.springboot.app.springbootcrud.controllers;
+package com.german.apirest.springboot.app.springbootcrud.controllers;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.andres.curso.springboot.app.springbootcrud.entities.Product;
-import com.andres.curso.springboot.app.springbootcrud.services.ProductService;
+import com.german.apirest.springboot.app.springbootcrud.entities.Product;
+import com.german.apirest.springboot.app.springbootcrud.services.ProductService;
 
 import jakarta.validation.Valid;
 

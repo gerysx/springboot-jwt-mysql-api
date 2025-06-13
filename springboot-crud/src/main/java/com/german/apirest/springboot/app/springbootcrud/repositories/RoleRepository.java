@@ -1,10 +1,10 @@
-package com.andres.curso.springboot.app.springbootcrud.repositories;
+package com.german.apirest.springboot.app.springbootcrud.repositories;
 
 import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 
-import com.andres.curso.springboot.app.springbootcrud.entities.Role;
+import com.german.apirest.springboot.app.springbootcrud.entities.Role;
 
 public interface RoleRepository extends CrudRepository<Role, Long> {
     
