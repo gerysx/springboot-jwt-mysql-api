@@ -5,7 +5,7 @@
             "name": "Spring Boot-SpringbootCrudApplication<springboot-crud>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "mainClass": "com.andres.curso.springboot.app.springbootcrud.SpringbootCrudApplication",
+            "mainClass": "com.german.apirest.springboot.app.springbootcrud.SpringbootCrudApplication",
             "projectName": "springboot-crud",
             "args": "",
             "envFile": "${workspaceFolder}/.env"

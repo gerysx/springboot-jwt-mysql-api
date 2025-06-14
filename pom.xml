@@ -8,7 +8,7 @@
 		<version>3.4.6</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.andres.curso.springboot.app</groupId>
+	<groupId>com.german.apirest.springboot.app</groupId>
 	<artifactId>springboot-crud</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>springboot-crud</name>
