@@ -3,7 +3,9 @@ package com.german.apirest.springboot.app.springbootcrud.entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.german.apirest.springboot.app.springbootcrud.validation.ExistsByUsername;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,6 +30,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ExistsByUsername
     @Column(unique = true)
     @NotBlank
     @Size(min = 4, max = 12)
@@ -37,6 +40,7 @@ public class User {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
+    @JsonIgnoreProperties({"users", "handler", "hibernateLazyInitializer"})
     @ManyToMany
     @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"), uniqueConstraints = {
             @UniqueConstraint(columnNames = { "user_id", "role_id" }) })
@@ -53,13 +57,9 @@ public class User {
         enabled = true;
     }
 
-    
-
     public User() {
         this.roles = new ArrayList<>();
     }
-
-
 
     public Long getId() {
         return id;
@@ -109,8 +109,6 @@ public class User {
         this.enabled = enabled;
     }
 
-
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -119,8 +117,6 @@ public class User {
         result = prime * result + ((username == null) ? 0 : username.hashCode());
         return result;
     }
-
-
 
     @Override
     public boolean equals(Object obj) {
@@ -143,7 +139,5 @@ public class User {
             return false;
         return true;
     }
-
-    
 
 }
