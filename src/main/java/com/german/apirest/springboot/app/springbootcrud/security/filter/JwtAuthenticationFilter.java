@@ -1,15 +1,16 @@
 package com.german.apirest.springboot.app.springbootcrud.security.filter;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.crypto.SecretKey;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.core.userdetails.User;
 
@@ -17,11 +18,14 @@ import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import static com.german.apirest.springboot.app.springbootcrud.security.TokenJwtConfig.*;
 
 /**
  * Filtro de autenticación JWT que extiende de
@@ -37,12 +41,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
      * Manager que procesa la autenticación de usuario.
      */
     private AuthenticationManager authenticationManager;
-
-    /**
-     * Clave secreta para firmar el token JWT.
-     * Se construye usando un algoritmo HS256.
-     */
-    private static final SecretKey SECRET_KEY = Jwts.SIG.HS256.key().build();
 
     /**
      * Constructor que recibe el AuthenticationManager para delegar la
@@ -112,15 +110,21 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         // Obtiene el UserDetails autenticado y extrae el username
         User user = (User) authResult.getPrincipal();
         String username = user.getUsername();
+        Collection<? extends GrantedAuthority> roles = authResult.getAuthorities();
+        Claims claims = Jwts.claims().build();
+        claims.put("authorities", roles);
 
         // Genera el token JWT firmado
         String token = Jwts.builder()
                 .subject(username)
+                .claims(claims)
+                .expiration(new Date(System.currentTimeMillis() + 3600000))
+                .issuedAt(new Date())
                 .signWith(SECRET_KEY)
                 .compact();
 
         // Añade el token en la cabecera Authorization
-        response.addHeader("Authorization", "Bearer " + token);
+        response.addHeader(HEADER_AUTHORIZATION, PREFIX_TOKEN + token);
 
         // Construye el cuerpo de la respuesta en JSON
         Map<String, String> body = new HashMap<>();
@@ -130,7 +134,38 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         // Escribe el JSON en la respuesta
         response.getWriter().write(new ObjectMapper().writeValueAsString(body));
-        response.setContentType("application/json");
+        response.setContentType(CONTENT_TYPE);
         response.setStatus(200);
     }
+
+    /**
+     * Invocado cuando la autenticación del usuario falla.
+     * <p>
+     * Construye un cuerpo de respuesta JSON con un mensaje genérico
+     * y el detalle de la excepción, escribe el JSON en la respuesta HTTP
+     * y establece el estado 401 Unauthorized.
+     * </p>
+     *
+     * @param request  la petición HTTP que desencadenó la autenticación
+     * @param response la respuesta HTTP que se enviará al cliente
+     * @param failed   la excepción que describe la razón del fallo de autenticación
+     * @throws IOException      si ocurre un error de E/S al escribir en el flujo de
+     *                          salida
+     * @throws ServletException si ocurre un error general del servlet
+     */
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException failed)
+            throws IOException, ServletException {
+
+        Map<String, String> body = new HashMap<>();
+        body.put("message:", " Error en la autenticación, username o password incorrectos");
+        body.put("error", failed.getMessage());
+
+        response.getWriter().write(new ObjectMapper().writeValueAsString(body));
+        response.setStatus(401);
+        response.setContentType(CONTENT_TYPE);
+    }
+
 }
