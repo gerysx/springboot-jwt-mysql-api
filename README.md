@@ -1,5 +1,10 @@
 
-***1. Introducción***
+
+# Guía explicativa API Rest Springboot + JWT + MySQL
+
+
+
+## ***1. Introducción***
 
 Este proyecto es una API REST construida con Spring Boot que ofrece operaciones CRUD sobre entidades Product y User, utilizando:
 
@@ -13,7 +18,7 @@ Validaciones a nivel de Bean Validation y validaciones personalizadas.
 
 El siguiente documento detalla cada componente, su propósito y cómo interactúan entre sí.
 
-***2. Arquitectura y Flujo General***
+## ***2. Arquitectura y Flujo General***
 
 [ Cliente ]
     │
@@ -35,23 +40,23 @@ Services implementan lógica de negocio, gestionan transacciones y encriptan con
 
 Repositories usan CrudRepository para acceder a la base de datos MySQL.
 
-***3. Configuración de la Aplicación***
+## ***3. Configuración de la Aplicación***
 
-*3.1 application.properties*
+***3.1 application.properties***
 
 Define conexión MySQL: URL (jdbc:mysql://localhost:3306/db_jpa_crud), usuario, contraseña y driver.
 
 Configura Hibernate: dialecto MySQL y muestra SQL en consola.
 
-*3.2 AppConfig & messages.properties*
+***3.2 AppConfig & messages.properties***
 
 AppConfig carga el archivo de mensajes de validación.
 
 messages.properties contiene textos personalizados para validaciones (NotNull.product.price, Min.product.price, etc.).
 
-***4. Seguridad: JWT y CORS***
+## ***4. Seguridad: JWT y CORS***
 
-*4.1 SpringSecurityConfig*
+***4.1 SpringSecurityConfig***
 
 Beans:
 
@@ -69,7 +74,7 @@ Añade filtros JWT para login y validación.
 
 Deshabilita CSRF y establece sesión stateless.
 
-*4.2 JWT Flow*
+***4.2 JWT Flow***
 
 Login: JwtAuthenticationFilter lee JSON con credenciales, delega en AuthenticationManager.
 
@@ -77,13 +82,13 @@ Generación: si es exitosa, construye un JWT firmando con TokenJwtConfig.SECRET_
 
 Acceso: en peticiones posteriores, JwtValidationFilter extrae token de la cabecera, lo valida y carga autoridad en SecurityContext.
 
-*4.3 CORS*
+***4.3 CORS***
 
 Configurado en SpringSecurityConfig con CorsConfigurationSource y CorsFilter: permite métodos GET, POST, DELETE y PUT desde cualquier origen.
 
-***5. Capa de Entidades y Persistencia***
+## ***5. Capa de Entidades y Persistencia***
 
-*5.1 Entidades JPA*
+***5.1 Entidades JPA***
 
 ``Product``: campos id, sku, name, price, description. Validaciones con Bean Validation y anotación personalizada @IsRequired.
 
@@ -91,7 +96,7 @@ Configurado en SpringSecurityConfig con CorsConfigurationSource y CorsFilter: pe
 
 ``Role``: campos id, name, lista de users.
 
-*5.2 Repositorios*
+***5.2 Repositorios***
 
 ``ProductRepository`` (CRUD) con método adicional ``existsBySku``.
 
@@ -99,15 +104,15 @@ Configurado en SpringSecurityConfig con CorsConfigurationSource y CorsFilter: pe
 
 ``RoleRepository`` con ``findByName.``
 
-***6. Servicios (Lógica de Negocio)***
+## ***6. Servicios (Lógica de Negocio)***
 
-*6.1 ProductService / ProductServiceImpl*
+***6.1 ProductService / ProductServiceImpl***
 
 Métodos CRUD: ``findAll()``, ``findById(id)``, ``save()``, ``update(id, entity)``, ``delete(id)``.
 
 Verificación de existencia de SKU.
 
-*6.2 UserService / UserServiceImpl*
+***6.2 UserService / UserServiceImpl***
 
 Listar y guardar usuarios.
 
@@ -115,21 +120,21 @@ Durante ``save()``, asigna roles: siempre ``ROLE_USER``, y si admin==true, añad
 
 Encripta contraseña con ``PasswordEncoder``.
 
-*6.3 JpaUserDetailsService*
+***6.3 JpaUserDetailsService***
 
 Implementa ``UserDetailsService`` para Spring Security.
 
 En ``loadUserByUsername()``, obtiene User de BD, convierte Role a GrantedAuthority y construye ``UserDetails``.
 
-***7. Validaciones***
+## ***7. Validaciones***
 
-*7.1 Bean Validation**
+***7.1 Bean Validation****
 
 Anotaciones estándar: @NotNull, @Size, @Min.
 
 Mensajes toman valores desde ``messages.properties``.
 
-*7.2 Validaciones Personalizadas*
+***7.2 Validaciones Personalizadas***
 
 @IsRequired / RequiredValidation: comprueba texto no vacío ni solo espacios.
 
@@ -137,11 +142,11 @@ Mensajes toman valores desde ``messages.properties``.
 
 @IsExistsDb / IsExistsDbValidation: asegura que SKU no esté en BD.
 
-*7.3 Validador Manual*
+***7.3 Validador Manual***
 
 ``ProductValidation`` (implementa Validator): reglas adicionales en controlador si se desea validación programática.
 
-***8. Controladores REST***
+## ***8. Controladores REST***
 
 ``ProductController`` (/api/products): operaciones CRUD, seguras con @PreAuthorize según roles ADMIN o USER.
 
@@ -149,13 +154,16 @@ Mensajes toman valores desde ``messages.properties``.
 
 Cada método devuelve ResponseEntity con código HTTP adecuado (200, 201, 400, 404).
 
-***9. Inicio de la Aplicación***
+## *9. Incio de la aplicación*
 
 Clase ``SpringbootCrudApplication`` con @SpringBootApplication y método main().
 
 Ejecuta con ``mvn spring-boot:run`` o generando JAR con mvn package.
 
 
-***10. Conclusión***
+**
+
+## *10. Conclusión*
+
 
 Este dossier proporciona una visión integral del proyecto, explicando cada capa y componente, su interacción y las razones de diseño. Sirve de guía para mantenimiento, ampliación o enseñanza de las buenas prácticas en APIs REST seguras con Spring Boot.
