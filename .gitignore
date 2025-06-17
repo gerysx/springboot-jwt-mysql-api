@@ -1,18 +1,15 @@
-# Ignorar la configuración de editor
+# Config del editor
 .vscode/
 
-# Ignorar carpetas de build de Maven
+# Carpeta de build de Maven
 /target/
 
-# Ignorar logs y archivos temporales
+# Logs
 *.log
 
-# Ignorar archivos de sistema
-.DS_Store
-
-# IDEs comunes (si llegas a usar IntelliJ, Eclipse…)
+# IDEs comunes
 .idea/
 *.iml
-.project
-.classpath
-.settings/
+
+# Archivos de sistema macOS
+.DS_Store
