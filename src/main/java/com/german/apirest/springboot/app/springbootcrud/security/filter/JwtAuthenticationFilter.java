@@ -12,11 +12,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.core.userdetails.User;
+
 
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.german.apirest.springboot.app.springbootcrud.entities.User;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -108,11 +109,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             throws IOException, ServletException {
 
         // Obtiene el UserDetails autenticado y extrae el username
-        User user = (User) authResult.getPrincipal();
+        org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User) authResult.getPrincipal();
         String username = user.getUsername();
         Collection<? extends GrantedAuthority> roles = authResult.getAuthorities();
-        Claims claims = Jwts.claims().build();
-        claims.put("authorities", roles);
+        Claims claims = Jwts.claims()
+        .add("authorities", new ObjectMapper().writeValueAsString(roles))
+        .add("username", username)
+        .build();
+        
 
         // Genera el token JWT firmado
         String token = Jwts.builder()
@@ -130,7 +134,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         Map<String, String> body = new HashMap<>();
         body.put("token", token);
         body.put("username", username);
-        body.put("mesage", String.format("Hola %s has iniciado sesión con éxito", username));
+        body.put("message", String.format("Hola %s has iniciado sesión con éxito", username));
 
         // Escribe el JSON en la respuesta
         response.getWriter().write(new ObjectMapper().writeValueAsString(body));

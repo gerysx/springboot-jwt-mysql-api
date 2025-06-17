@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +34,7 @@ import jakarta.validation.Valid;
  *   <li><code>jakarta.validation-api</code> – para @Valid y validaciones de datos.</li>
  * </ul>
  */
+// @CrossOrigin(origin = "http://....com", originPatterns = "*")
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -50,6 +52,7 @@ public class ProductController {
      * @return lista de {@link Product} con todos los productos persistidos.
      */
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public List<Product> list() {
         return service.findAll();
     }
@@ -65,6 +68,7 @@ public class ProductController {
      * </ul>
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> view(@PathVariable Long id) {
         Optional<Product> productOptional = service.findById(id);
         if (productOptional.isPresent()) {
@@ -87,6 +91,7 @@ public class ProductController {
      *   <li>400 Bad Request y un mapa de mensajes de error, si falla la validación.</li>
      * </ul>
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody Product product, BindingResult result) {
         // valdation.validate(product, result);
@@ -113,6 +118,8 @@ public class ProductController {
      *   <li>404 Not Found, si el producto con ese {@code id} no existe.</li>
      * </ul>
      */
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@Valid @RequestBody Product product, BindingResult result, @PathVariable Long id) {
         // valdation.validate(product, result);
@@ -136,6 +143,7 @@ public class ProductController {
      *   <li>404 Not Found, si no se encuentra el producto.</li>
      * </ul>
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         Optional<Product> productOptional = service.delete(id);

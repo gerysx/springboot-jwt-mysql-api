@@ -7,7 +7,9 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +21,7 @@ import com.german.apirest.springboot.app.springbootcrud.services.UserService;
 
 import jakarta.validation.Valid;
 
+// @CrossOrigin(origin = "http://....com", originPatterns = "*")
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -60,6 +63,7 @@ public class UserController {
      *         error, si hay fallos de validación.</li>
      *         </ul>
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     ResponseEntity<?> create(@Valid @RequestBody User user, BindingResult result) {
 
