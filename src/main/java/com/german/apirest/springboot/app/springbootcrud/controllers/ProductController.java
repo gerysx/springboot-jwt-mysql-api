@@ -25,23 +25,25 @@ import com.german.apirest.springboot.app.springbootcrud.services.ProductService;
 import jakarta.validation.Valid;
 
 /**
- * Controlador REST para gestionar operaciones CRUD sobre {@link Product}.
+ * REST controller for managing CRUD operations on {@link Product} entities.
  *
- * <p><strong>Dependencias necesarias:</strong>
+ * <p>
+ * Exposes endpoints under <code>/api/products</code> and secures access based on roles:
  * <ul>
- *   <li><code>spring-boot-starter-web</code> – para @RestController y manejo de rutas HTTP.</li>
- *   <li><code>spring-boot-starter-data-jpa</code> – para la persistencia de entidades Product.</li>
- *   <li><code>jakarta.validation-api</code> – para @Valid y validaciones de datos.</li>
+ *   <li><strong>ADMIN</strong> – full access (create, update, delete).</li>
+ *   <li><strong>USER</strong> – read-only access (list and view).</li>
  * </ul>
+ * Delegates business logic to {@link ProductService}.</p>
+ *
+ * @version 1.0
+ * @since   1.0
  */
-// @CrossOrigin(origin = "http://....com", originPatterns = "*")
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
-    
+
     /**
      * Servicio que implementa la lógica de negocio y acceso a datos para {@link Product}.
-     * Inyectado automáticamente por Spring.
      */
     @Autowired
     private ProductService service;
@@ -49,7 +51,9 @@ public class ProductController {
     /**
      * Obtiene todos los productos disponibles.
      *
-     * @return lista de {@link Product} con todos los productos persistidos.
+     * <p>Requiere rol <code>ADMIN</code> o <code>USER</code> para acceder.</p>
+     *
+     * @return lista de todos los {@link Product} persistidos.
      */
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
@@ -60,12 +64,14 @@ public class ProductController {
     /**
      * Recupera un producto por su identificador.
      *
-     * @param id Identificador único del producto a recuperar.
+     * <p>Requiere rol <code>ADMIN</code> o <code>USER</code> para acceder.</p>
+     *
+     * @param id identificador único del producto a recuperar.
      * @return {@link ResponseEntity} con:
-     * <ul>
-     *   <li>200 OK y el producto en el cuerpo, si existe.</li>
-     *   <li>404 Not Found, sin cuerpo, si no se encuentra.</li>
-     * </ul>
+     *         <ul>
+     *           <li><strong>200 OK</strong> y el producto en el cuerpo si existe.</li>
+     *           <li><strong>404 Not Found</strong> si no se encuentra.</li>
+     *         </ul>
      */
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
@@ -80,21 +86,21 @@ public class ProductController {
     /**
      * Crea un nuevo producto.
      *
-     * <p>Valida el objeto {@link Product} recibido según sus anotaciones
-     * de Bean Validation. Si hay errores, devuelve 400 con los detalles.</p>
+     * <p>Requiere rol <code>ADMIN</code> para acceder.</p>
+     * <p>Valida el objeto {@link Product} recibido y, si hay errores,
+     * devuelve <strong>400 Bad Request</strong> con detalles.</p>
      *
-     * @param product  Objeto {@link Product} construido desde el cuerpo de la petición.
-     * @param result   Contenedor de errores de validación tras aplicar {@code @Valid}.
+     * @param product objeto {@link Product} a crear, deserializado del cuerpo de la petición.
+     * @param result  contenedor de errores de validación tras aplicar {@code @Valid}.
      * @return {@link ResponseEntity} con:
-     * <ul>
-     *   <li>201 Created y el producto guardado en el cuerpo, si la validación pasa.</li>
-     *   <li>400 Bad Request y un mapa de mensajes de error, si falla la validación.</li>
-     * </ul>
+     *         <ul>
+     *           <li><strong>201 Created</strong> y el producto guardado en el cuerpo si la validación pasa.</li>
+     *           <li><strong>400 Bad Request</strong> y un mapa con mensajes de error si falla la validación.</li>
+     *         </ul>
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody Product product, BindingResult result) {
-        // valdation.validate(product, result);
         if (result.hasFieldErrors()) {
             return validation(result);
         }
@@ -104,25 +110,24 @@ public class ProductController {
     /**
      * Actualiza un producto existente.
      *
-     * <p>Valida el objeto {@link Product} recibido. Si no pasa validación,
-     * responde 400 con detalles de error. Luego intenta actualizar el producto
-     * con el {@code id} proporcionado.</p>
+     * <p>Requiere rol <code>ADMIN</code> para acceder.</p>
+     * <p>Valida el objeto {@link Product} y, si hay errores,
+     * devuelve <strong>400 Bad Request</strong> con detalles. Si el producto no existe,
+     * devuelve <strong>404 Not Found</strong>.</p>
      *
-     * @param product  Objeto {@link Product} con los datos a actualizar.
-     * @param result   Contenedor de errores de validación tras aplicar {@code @Valid}.
-     * @param id       Identificador del producto que se desea actualizar.
+     * @param product objeto {@link Product} con datos para actualizar.
+     * @param result  contenedor de errores de validación tras aplicar {@code @Valid}.
+     * @param id      identificador del producto a actualizar.
      * @return {@link ResponseEntity} con:
-     * <ul>
-     *   <li>201 Created y el producto actualizado, si existe y pasa validación.</li>
-     *   <li>400 Bad Request y mapa de errores, si falla validación.</li>
-     *   <li>404 Not Found, si el producto con ese {@code id} no existe.</li>
-     * </ul>
+     *         <ul>
+     *           <li><strong>201 Created</strong> y el producto actualizado si existe y pasa validación.</li>
+     *           <li><strong>400 Bad Request</strong> y mapa de errores si falla validación.</li>
+     *           <li><strong>404 Not Found</strong> si no existe producto con ese id.</li>
+     *         </ul>
      */
-
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@Valid @RequestBody Product product, BindingResult result, @PathVariable Long id) {
-        // valdation.validate(product, result);
         if (result.hasFieldErrors()) {
             return validation(result);
         }
@@ -136,12 +141,14 @@ public class ProductController {
     /**
      * Elimina un producto por su identificador.
      *
-     * @param id Identificador del producto a eliminar.
+     * <p>Requiere rol <code>ADMIN</code> para acceder.</p>
+     *
+     * @param id identificador del producto a eliminar.
      * @return {@link ResponseEntity} con:
-     * <ul>
-     *   <li>200 OK y el producto eliminado en el cuerpo, si existía.</li>
-     *   <li>404 Not Found, si no se encuentra el producto.</li>
-     * </ul>
+     *         <ul>
+     *           <li><strong>200 OK</strong> y el producto eliminado en el cuerpo si existía.</li>
+     *           <li><strong>404 Not Found</strong> si no se encuentra el producto.</li>
+     *         </ul>
      */
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
@@ -157,10 +164,10 @@ public class ProductController {
      * Construye la respuesta de error cuando la validación de campos falla.
      *
      * <p>Recorre los errores de campo en el {@link BindingResult} y crea un mapa
-     * donde la clave es el nombre del campo y el valor es un mensaje descriptivo.</p>
+     * donde la clave es el nombre del campo y el valor es el mensaje descriptivo.</p>
      *
-     * @param result Contenedor con los errores de validación.
-     * @return {@link ResponseEntity} con estado 400 Bad Request y
+     * @param result contenedor con los errores de validación.
+     * @return {@link ResponseEntity} con estado <strong>400 Bad Request</strong> y
      *         cuerpo de tipo {@code Map<String,String>} con los mensajes de error.
      */
     private ResponseEntity<?> validation(BindingResult result) {

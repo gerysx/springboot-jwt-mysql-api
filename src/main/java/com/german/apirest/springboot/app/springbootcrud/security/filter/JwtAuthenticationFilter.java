@@ -30,11 +30,11 @@ import static com.german.apirest.springboot.app.springbootcrud.security.TokenJwt
 
 /**
  * Filtro de autenticación JWT que extiende de
- * UsernamePasswordAuthenticationFilter.
+ * {@link UsernamePasswordAuthenticationFilter}.
  * <p>
  * Lee credenciales en formato JSON, delega la autenticación al
- * AuthenticationManager
- * y genera un token JWT en caso de éxito.
+ * {@link AuthenticationManager} y genera un token JWT en caso de éxito.
+ * </p>
  */
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -43,9 +43,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
      */
     private AuthenticationManager authenticationManager;
 
-    /**
-     * Constructor que recibe el AuthenticationManager para delegar la
-     * autenticación.
+     /**
+     * Constructor que recibe el {@code AuthenticationManager} para delegar
+     * la autenticación de credenciales.
      *
      * @param authenticationManager instancia que valida las credenciales.
      */
@@ -53,13 +53,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         this.authenticationManager = authenticationManager;
     }
 
-    /**
-     * Intenta autenticar al usuario leyendo las credenciales del cuerpo de la
-     * petición.
+     /**
+     * Intenta autenticar al usuario leyendo las credenciales del cuerpo de la petición.
      *
      * @param request  petición HTTP con JSON de credenciales.
      * @param response respuesta HTTP.
-     * @return Authentication autenticado si las credenciales son válidas.
+     * @return objeto {@link Authentication} autenticado si las credenciales son válidas.
      * @throws AuthenticationException si falla la autenticación.
      */
     @Override
@@ -90,9 +89,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         return authenticationManager.authenticate(authenticationToken);
     }
 
-    /**
-     * Maneja la autenticación exitosa generando un JWT y escribiéndolo en la
-     * respuesta.
+     /**
+     * Maneja la autenticación exitosa generando un JWT y escribiéndolo en la respuesta.
      *
      * @param request    petición HTTP original.
      * @param response   respuesta HTTP donde se incluirá el token.
@@ -143,19 +141,17 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     /**
-     * Invocado cuando la autenticación del usuario falla.
+     * Invocado cuando la autenticación falla.
      * <p>
-     * Construye un cuerpo de respuesta JSON con un mensaje genérico
-     * y el detalle de la excepción, escribe el JSON en la respuesta HTTP
-     * y establece el estado 401 Unauthorized.
+     * Devuelve un JSON con mensaje y detalle de la excepción,
+     * estableciendo estado <strong>401 Unauthorized</strong>.
      * </p>
      *
-     * @param request  la petición HTTP que desencadenó la autenticación
-     * @param response la respuesta HTTP que se enviará al cliente
-     * @param failed   la excepción que describe la razón del fallo de autenticación
-     * @throws IOException      si ocurre un error de E/S al escribir en el flujo de
-     *                          salida
-     * @throws ServletException si ocurre un error general del servlet
+     * @param request  petición HTTP que desencadenó el fallo.
+     * @param response respuesta HTTP a enviar.
+     * @param failed   excepción con la razón del fallo.
+     * @throws IOException      si ocurre un error de I/O.
+     * @throws ServletException si ocurre un error del servlet.
      */
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request,

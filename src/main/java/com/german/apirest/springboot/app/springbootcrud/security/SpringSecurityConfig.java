@@ -25,61 +25,52 @@ import com.german.apirest.springboot.app.springbootcrud.security.filter.JwtAuthe
 import com.german.apirest.springboot.app.springbootcrud.security.filter.JwtValidationFilter;
 
 /**
- * Configuración de Spring Security para la aplicación.
+ * Configuración de seguridad basada en filtros para la aplicación.
  * <p>
- * Define:
+ * Define beans y la cadena de filtros que:
  * <ul>
- *   <li>El {@link AuthenticationManager} basado en la configuración de Spring.</li>
- *   <li>El {@link PasswordEncoder} para encriptar y verificar contraseñas.</li>
- *   <li>La cadena de filtros HTTP que:
- *     <ul>
- *       <li>Permite rutas públicas (p. ej. registro y lectura de usuarios).</li>
- *       <li>Protege rutas según roles (ADMIN vs USER).</li>
- *       <li>Inyecta los filtros de autenticación y validación JWT.</li>
- *       <li>Deshabilita CSRF y activa el modo stateless.</li>
- *     </ul>
- *   </li>
+ *   <li>Proporciona un {@link org.springframework.security.authentication.AuthenticationManager}</li>
+ *   <li>Declara un {@link org.springframework.security.crypto.password.PasswordEncoder} (BCrypt)</li>
+ *   <li>Configura CORS para permitir orígenes y métodos específicos</li>
+ *   <li>Deshabilita CSRF y establece la política de sesión como <strong>stateless</strong></li>
+ *   <li>Inyecta los filtros {@link com.german.apirest.springboot.app.springbootcrud.security.filter.JwtAuthenticationFilter}
+ *       y {@link com.german.apirest.springboot.app.springbootcrud.security.filter.JwtValidationFilter}
+ *       para gestionar la autenticación y validación de JWT.</li>
+ *   <li>Define reglas de autorización por endpoint (públicos vs. protegidos).</li>
  * </ul>
  * </p>
+ *
+ * @version 1.0
+ * @since   1.0
  */
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
 public class SpringSecurityConfig {
 
     /**
-     * Configuración de autenticación de Spring, inyectada para
-     * obtener el {@link AuthenticationManager}.
+     * Configuración de autenticación inyectada para obtener el {@link AuthenticationManager}.
      */
     @Autowired
     private AuthenticationConfiguration authenticationConfiguration;
 
     /**
-     * Crea un {@link AuthenticationManager} a partir de la configuración
-     * de Spring Security.
-     * <p>
-     * Este bean se usa internamente por los filtros de Spring para
-     * delegar la autenticación de credenciales.
-     * </p>
+     * Crea un {@link AuthenticationManager} a partir de la configuración de Spring Security.
      *
-     * @return la instancia de {@link AuthenticationManager}
+     * @return instancia de {@code AuthenticationManager}
      * @throws Exception si no puede obtenerse del contexto de Spring
      */
     @Bean
     AuthenticationManager authenticationManager() throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();}
-
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 
     /**
-     * Crea un {@link PasswordEncoder} basado en BCrypt.
+     * Crea un {@link PasswordEncoder} basado en {@link BCryptPasswordEncoder}.
      * <p>
-     * Se utiliza para:
-     * <ul>
-     *   <li>Encriptar la contraseña al registrar usuarios.</li>
-     *   <li>Verificar la contraseña en el proceso de login.</li>
-     * </ul>
-     * </p>
+     * Utilizado para encriptar contraseñas al registrar usuarios y
+     * verificarlas durante el login.</p>
      *
-     * @return un encoder {@link BCryptPasswordEncoder}
+     * @return instancia de {@code BCryptPasswordEncoder}
      */
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -87,52 +78,41 @@ public class SpringSecurityConfig {
     }
 
     /**
-     * Define la cadena de filtros de seguridad HTTP.
+     * Configura la cadena de filtros HTTP para seguridad.
      * <p>
-     * Aplica las siguientes reglas:
-     * <ul>
-     *   <li>Permite GET en <code>/api/users</code> sin autenticación.</li>
-     *   <li>Permite POST en <code>/api/users/register</code> sin autenticación.</li>
-     *   <li>Requiere rol <code>ADMIN</code> para crear usuarios y productos.</li>
-     *   <li>Permite a <code>USER</code> y <code>ADMIN</code> acceder a productos.</li>
-     *   <li>Restringe DELETE de productos y usuarios a <code>ADMIN</code>.</li>
-     *   <li>Requiere autenticación para cualquier otra ruta.</li>
-     *   <li>Deshabilita CSRF y marca la sesión como <strong>stateless</strong>.</li>
-     *   <li>Inyecta los filtros {@link JwtAuthenticationFilter} y
-     *       {@link JwtValidationFilter} para gestionar JWT.</li>
-     * </ul>
-     * </p>
+     * Define reglas de acceso por ruta, deshabilita CSRF,
+     * habilita CORS, establece sesiones <strong>stateless</strong>
+     * e intercala filtros de JWT.</p>
      *
-     * @param http el builder para configurar la seguridad HTTP
-     * @return la instancia de {@link SecurityFilterChain} configurada
+     * @param http builder de {@link HttpSecurity}
+     * @return la {@code SecurityFilterChain} configurada
      * @throws Exception si ocurre un error durante la configuración
      */
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers(HttpMethod.GET, "/api/users").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
-                        /* .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/{id}")
-                        .hasAnyRole("ADMIN", "USER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/users/{id}").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/users/{id}").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/users/{id}").hasRole("ADMIN") */
-                        .anyRequest().authenticated())
-                .addFilter(new JwtAuthenticationFilter(authenticationManager()))
-                .addFilter(new JwtValidationFilter(authenticationManager()))
-                .csrf(config -> config.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(managment ->
-                    managment.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .build();
+            .authorizeHttpRequests(authz -> authz
+                .requestMatchers(HttpMethod.GET, "/api/users").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
+                .anyRequest().authenticated()
+            )
+            .addFilter(new JwtAuthenticationFilter(authenticationManager()))
+            .addFilter(new JwtValidationFilter(authenticationManager()))
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .sessionManagement(sess ->
+                sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .build();
     }
 
+    /**
+     * Define la configuración CORS global para la aplicación.
+     *
+     * @return {@code CorsConfigurationSource} con orígenes, métodos y cabeceras permitidos
+     */
     @Bean
-    CorsConfigurationSource corsConfigurationSource (){
+    CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(Arrays.asList("*"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT"));
@@ -141,15 +121,19 @@ public class SpringSecurityConfig {
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
-
         return source;
-
     }
 
+    /**
+     * Registra el filtro CORS con la precedencia más alta.
+     *
+     * @return {@code FilterRegistrationBean<CorsFilter>} para el filtro de CORS
+     */
     @Bean
-    FilterRegistrationBean<CorsFilter> corsFilter () {
-        FilterRegistrationBean<CorsFilter> corsBean = new FilterRegistrationBean<>(new CorsFilter(corsConfigurationSource()));
-        corsBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        return corsBean;
+    FilterRegistrationBean<CorsFilter> corsFilter() {
+        FilterRegistrationBean<CorsFilter> bean =
+            new FilterRegistrationBean<>(new CorsFilter(corsConfigurationSource()));
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return bean;
     }
 }

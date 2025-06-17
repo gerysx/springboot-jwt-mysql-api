@@ -30,12 +30,36 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Filtro de validación JWT que extiende de
+ * {@link BasicAuthenticationFilter}.
+ * <p>
+ * Intercepta cada petición, extrae y valida el token JWT,
+ * establece la autenticación en el contexto si es válido
+ * o devuelve 401 en caso contrario.
+ * </p>
+ */
 public class JwtValidationFilter extends BasicAuthenticationFilter{
 
+/**
+     * Constructor que recibe el {@code AuthenticationManager} para validar el token.
+     *
+     * @param authenticationManager gestor de autenticación de Spring.
+     */
     public JwtValidationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
     }
 
+
+/**
+     * Filtra cada petición HTTP verificando el JWT.
+     *
+     * @param request  petición entrante.
+     * @param response respuesta HTTP.
+     * @param chain    cadena de filtros.
+     * @throws IOException      si ocurre un error de I/O.
+     * @throws ServletException si ocurre un error en el servlet.
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
